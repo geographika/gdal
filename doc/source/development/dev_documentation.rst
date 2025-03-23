@@ -115,7 +115,7 @@ A reStructuredText document is written in plain text.  Without the need for comp
      - `` ``monospace`` `` (double back quote)
      - ``monospace``
 
-.. warning:: Use of basic markup is **not recommend**! Where possible use sphinx inline directives (described below) to logically mark commands, parameters, options, input, and files. By using directives consistently these items can be styled appropriately.
+.. warning:: Use of HTML markup is **not recommend**! Where possible use sphinx inline directives (described below) to logically mark commands, parameters, options, input, and files. By using directives consistently these items can be styled appropriately.
 
 Lists
 -----
@@ -237,7 +237,7 @@ Use sections to break up long pages and to help Sphinx generate tables of conten
 Notes and warnings
 ------------------
 
-When it is beneficial to have a section of text stand out from the main text, Sphinx has two such boxes, the note and the warning.  They function identically, and only differ in their coloring.  You should use notes and warnings sparingly, however, as adding emphasis to everything makes the emphasis less effective.
+When it is beneficial to have a section of text stand out from the main text, Sphinx has two such boxes, the note and the warning.  They are function identically, and only differ in their coloring.  You should use notes and warnings sparingly, however, as adding emphasis to everything makes the emphasis less effective.
 
 Here is an example of a note:
 
@@ -274,13 +274,13 @@ External files
 
 Text snippets, large blocks of downloadable code, and even zip files or other binary sources can all be included as part of the documentation.
 
-To include link to sample file, use the ``download`` directive::
+To include a link to a file, use the ``download`` directive::
 
    :download:`An external file <example.txt>`
 
 The result of this code will generate a standard link to an :download:`external file <example.txt>`
 
-To include the contents of a file, use ``literalinclude`` directive::
+To include the contents of a file, use the ``literalinclude`` directive::
 
    Example of :command:`gdalinfo` use:
 
@@ -368,7 +368,7 @@ a cross-reference from the same document.
 
     The ``ls`` command is demonstrated in :example:`basic-ls`.
 
-If output of the command is to be included in the listing, the code language
+If the output of the command is to be included in the listing, the code language
 should be set to ``console``:
 
 .. code-block:: rst
@@ -483,7 +483,7 @@ that can include code cells:
 See :file:`doc/source/api/python/python_examples.myst` for an example.
 
 Consult how to author `text-based notebooks <https://myst-nb.readthedocs.io/en/latest/authoring/text-notebooks.html>`__
-for more details.`
+for more details.
 
 Building full GDAL documentation, even in incremental mode, is rather slow.
 It is possible to partly render to HTML a MyST file with:

@@ -22,28 +22,25 @@ Initially it is necessary to register all the format drivers that are desired.
 This is normally accomplished by calling :cpp:func:`GDALAllRegister` which registers
 all format drivers built into GDAL/OGR.
 
-In C++ :
+.. tabs::
 
-.. code-block:: c++
+   .. code-tab:: c++
 
-    #include "ogrsf_frmts.h"
+      #include "ogrsf_frmts.h"
 
-    int main()
+      int main()
 
-    {
-        GDALAllRegister();
+      {
+          GDALAllRegister();
 
+   .. code-tab:: c
 
-In C :
+      #include "gdal.h"
 
-.. code-block:: c
+      int main()
 
-    #include "gdal.h"
-
-    int main()
-
-    {
-        GDALAllRegister();
+      {
+          GDALAllRegister();
 
 Next we need to open the input OGR datasource.  Datasources can be files,
 RDBMSes, directories full of files, or even remote web services depending on
@@ -54,52 +51,48 @@ that we want a vector driver to be use and that don't require update access.
 On failure NULL is returned, and
 we report an error.
 
-In C++ :
+.. tabs::
 
-.. code-block:: c++
+   .. code-tab:: c++
 
-    GDALDataset       *poDS;
+      GDALDataset       *poDS;
 
-    poDS = (GDALDataset*) GDALOpenEx( "point.shp", GDAL_OF_VECTOR, NULL, NULL, NULL );
-    if( poDS == NULL )
-    {
-        printf( "Open failed.\n" );
-        exit( 1 );
-    }
+      poDS = (GDALDataset*) GDALOpenEx( "point.shp", GDAL_OF_VECTOR, NULL, NULL, NULL );
+      if( poDS == NULL )
+      {
+          printf( "Open failed.\n" );
+          exit( 1 );
+      }
 
-In C :
+   .. code-tab:: c
 
-.. code-block:: c
+      GDALDatasetH hDS;
 
-    GDALDatasetH hDS;
-
-    hDS = GDALOpenEx( "point.shp", GDAL_OF_VECTOR, NULL, NULL, NULL );
-    if( hDS == NULL )
-    {
-        printf( "Open failed.\n" );
-        exit( 1 );
-    }
+      hDS = GDALOpenEx( "point.shp", GDAL_OF_VECTOR, NULL, NULL, NULL );
+      if( hDS == NULL )
+      {
+          printf( "Open failed.\n" );
+          exit( 1 );
+      }
 
 A GDALDataset can potentially have many layers associated with it.  The
 number of layers available can be queried with :cpp:func:`GDALDataset::GetLayerCount`
 and individual layers fetched by index using :cpp:func:`GDALDataset::GetLayer`.
 However, we will just fetch the layer by name.
 
-In C++ :
+.. tabs::
 
-.. code-block:: c++
+   .. code-tab:: c++
 
-    OGRLayer  *poLayer;
+      OGRLayer  *poLayer;
 
-    poLayer = poDS->GetLayerByName( "point" );
+      poLayer = poDS->GetLayerByName( "point" );
 
-In C :
+   .. code-tab:: c
 
-.. code-block:: c
+      OGRLayerH hLayer;
 
-    OGRLayerH hLayer;
-
-    hLayer = GDALDatasetGetLayerByName( hDS, "point" );
+      hLayer = GDALDatasetGetLayerByName( hDS, "point" );
 
 
 Now we want to start reading features from the layer.  Before we start we
@@ -108,17 +101,18 @@ of feature we get back, but for now we are interested in getting all features.
 
 With GDAL 2.3 and C++11:
 
-.. code-block:: c++
+.. tabs::
 
-    for( auto& poFeature: poLayer )
-    {
+   .. code-tab:: c++
 
-With GDAL 2.3 and C:
+      // C++11
+      for( auto& poFeature: poLayer )
+      {
 
-.. code-block:: c
+   .. code-tab:: c
 
-    OGR_FOR_EACH_FEATURE_BEGIN(hFeature, hLayer)
-    {
+      OGR_FOR_EACH_FEATURE_BEGIN(hFeature, hLayer)
+      {
 
 If using older GDAL versions, while it isn't strictly necessary in this
 circumstance since we are starting fresh with the layer, it is often wise
@@ -126,71 +120,73 @@ to call :cpp:func:`OGRLayer::ResetReading` to ensure we are starting at the begi
 the layer.  We iterate through all the features in the layer using
 OGRLayer::GetNextFeature().  It will return NULL when we run out of features.
 
-With GDAL < 2.3 and C++ :
+With GDAL < 2.3:
 
-.. code-block:: c++
+.. tabs::
 
-    OGRFeature *poFeature;
+   .. code-tab:: c++
 
-    poLayer->ResetReading();
-    while( (poFeature = poLayer->GetNextFeature()) != NULL )
-    {
+      OGRFeature *poFeature;
 
+      poLayer->ResetReading();
+      while( (poFeature = poLayer->GetNextFeature()) != NULL )
+      {
 
-With GDAL < 2.3 and C :
+   .. code-tab:: c
 
-.. code-block:: c
+      OGRFeatureH hFeature;
 
-    OGRFeatureH hFeature;
-
-    OGR_L_ResetReading(hLayer);
-    while( (hFeature = OGR_L_GetNextFeature(hLayer)) != NULL )
-    {
+      OGR_L_ResetReading(hLayer);
+      while( (hFeature = OGR_L_GetNextFeature(hLayer)) != NULL )
+      {
 
 In order to dump all the attribute fields of the feature, it is helpful
 to get the :cpp:class:`OGRFeatureDefn`.  This is an object, associated with the layer,
 containing the definitions of all the fields.  We loop over all the fields,
 and fetch and report the attributes based on their type.
 
-With GDAL 2.3 and C++11:
+With GDAL 2.3:
 
-.. code-block:: c++
+.. tabs::
 
-    for( auto&& oField: *poFeature )
-    {
-        if( oField.IsUnset() )
-        {
-            printf("(unset),");
-            continue;
-        }
-        if( oField.IsNull() )
-        {
-            printf("(null),");
-            continue;
-        }
-        switch( oField.GetType() )
-        {
-            case OFTInteger:
-                printf( "%d,", oField.GetInteger() );
-                break;
-            case OFTInteger64:
-                printf( CPL_FRMT_GIB ",", oField.GetInteger64() );
-                break;
-            case OFTReal:
-                printf( "%.3f,", oField.GetDouble() );
-                break;
-            case OFTString:
-                // GetString() returns a C string
-                printf( "%s,", oField.GetString() );
-                break;
-            default:
-                // Note: we use GetAsString() and not GetString(), since
-                // the later assumes the field type to be OFTString while the
-                // former will do a conversion from the original type to string.
-                printf( "%s,", oField.GetAsString() );
-                break;
-        }
-    }
+   .. code-tab:: c++
+
+      // C++11
+      for( auto&& oField: *poFeature )
+      {
+          if( oField.IsUnset() )
+          {
+              printf("(unset),");
+              continue;
+          }
+          if( oField.IsNull() )
+          {
+              printf("(null),");
+              continue;
+          }
+          switch( oField.GetType() )
+          {
+              case OFTInteger:
+                  printf( "%d,", oField.GetInteger() );
+                  break;
+              case OFTInteger64:
+                  printf( CPL_FRMT_GIB ",", oField.GetInteger64() );
+                  break;
+              case OFTReal:
+                  printf( "%.3f,", oField.GetDouble() );
+                  break;
+              case OFTString:
+                  // GetString() returns a C string
+                  printf( "%s,", oField.GetString() );
+                  break;
+              default:
+                  // Note: we use GetAsString() and not GetString(), since
+                  // the later assumes the field type to be OFTString while the
+                  // former will do a conversion from the original type to string.
+                  printf( "%s,", oField.GetAsString() );
+                  break;
+          }
+      }
 
 With GDAL < 2.3 and C++ :
 

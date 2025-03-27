@@ -6,10 +6,11 @@ numpy
 sphinx
 sphinx_bootstrap_theme
 sphinx-markdown-tables
-sphinx_rtd_theme
+# sphinx_rtd_theme
 sphinxcontrib-bibtex
 sphinxcontrib-jquery
 sphinx-rtd-theme >= 3.0.0
+sphinx-tabs
 # We use a slightly forked version
 # sphinxcontrib-programoutput
 sphinxcontrib-spelling

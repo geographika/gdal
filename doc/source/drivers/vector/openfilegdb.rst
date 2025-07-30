@@ -3,7 +3,7 @@
 ESRI File Geodatabase vector (OpenFileGDB)
 ==========================================
 
-.. shortname:: OpenFileGDB
+.. shortname:: OpenFileGDB (vector)
 
 .. built_in_by_default::
 

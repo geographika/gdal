@@ -5,7 +5,7 @@ ESRI File Geodatabase raster (OpenFileGDB)
 
 .. versionadded:: 3.7
 
-.. shortname:: OpenFileGDB
+.. shortname:: OpenFileGDB (raster)
 
 .. built_in_by_default::
 

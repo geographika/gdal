@@ -3,7 +3,7 @@
 GPKG -- GeoPackage vector
 =========================
 
-.. shortname:: GPKG
+.. shortname:: GPKG (vector)
 
 .. build_dependencies:: libsqlite3
 

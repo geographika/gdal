@@ -4,7 +4,7 @@
 GPKG -- GeoPackage raster
 ================================================================================
 
-.. shortname:: GPKG
+.. shortname:: GPKG (raster)
 
 .. build_dependencies:: libsqlite3 (and any or all of PNG, JPEG, WEBP drivers)
 

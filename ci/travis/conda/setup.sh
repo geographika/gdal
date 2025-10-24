@@ -15,7 +15,7 @@ conda config --show
 
 conda install -c conda-forge conda-build -y
 
-git clone  https://github.com/conda-forge/gdal-feedstock.git
+git clone  https://github.com/geographika/gdal-feedstock.git
 
 cd gdal-feedstock
 

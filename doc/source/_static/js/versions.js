@@ -64,7 +64,7 @@ if (themeFlyoutDisplay === "attached") {
                 .map(
                     (version) => `
         <dd ${version.slug === config.versions.current.slug ? 'class="rtd-current-item"' : ""}>
-          <a href="${version.urls.documentation}">${version.slug}</a>
+          <a href="${window.location.pathname.replace(config.versions.current.slug, version.slug)}">${version.slug}</a>
         </dd>
         `,
                 )
@@ -223,7 +223,7 @@ if (themeLanguageSelector || themeVersionSelector) {
               <option
                   value="${language.language.code}"
                   ${config.projects.current.slug === language.slug ? 'selected="selected"' : ""}
-                  data-url="${window.location.pathname.replace(config.versions.current.slug, version.slug)}">
+                  data-url="${language.urls.documentation}">
                   ${language.language.name}
               </option>`,
                         )

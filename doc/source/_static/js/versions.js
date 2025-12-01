@@ -223,7 +223,7 @@ if (themeLanguageSelector || themeVersionSelector) {
               <option
                   value="${language.language.code}"
                   ${config.projects.current.slug === language.slug ? 'selected="selected"' : ""}
-                  data-url="${language.urls.documentation}">
+                  data-url="${window.location.pathname.replace(config.versions.current.slug, version.slug)}">
                   ${language.language.name}
               </option>`,
                         )

@@ -1023,7 +1023,8 @@ void CPL_STDCALL CPLDefaultErrorHandler(CPLErr eErrClass, CPLErrorNum nError,
             // If running GDAL as a CustomBuild Command os MSBuild, "ERROR bla:"
             // is considered as failing the job. This is rarely the intended
             // behavior
-            pszErrorSeparator = CPLGetConfigOption("CPL_ERROR_SEPARATOR", ":");
+            const char *pszSep = CPLGetConfigOption("CPL_ERROR_SEPARATOR", ":");
+            pszErrorSeparator = CPLStrdup(pszSep);
         }
 
         nCount++;

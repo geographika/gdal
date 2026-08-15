@@ -246,6 +246,39 @@ def test_ogr_mssqlspatial_4(mssql_ds, mssql_has_z_m):
 
     mssqlspatial_lyr.ResetReading()  # to close implicit transaction
 
+###############################################################################
+# Test SetFeature() updating the geometry of an existing feature using the
+# native geometry format
+
+
+@pytest.mark.usefixtures("tpoly")
+def test_ogr_mssqlspatial_setfeature_native_geometry(mssql_ds):
+
+    mssqlspatial_lyr = mssql_ds.GetLayer("tpoly")
+
+    mssqlspatial_lyr.ResetReading()
+    feat = mssqlspatial_lyr.GetNextFeature()
+    assert feat is not None
+
+    # Create a geometry with many vertices
+    ring = ogr.Geometry(ogr.wkbLinearRing)
+    n = 2000
+    for i in range(n):
+        angle = 2 * 3.14159265 * i / n
+        ring.AddPoint(100 * (1 + 0.001 * i) * __import__("math").cos(angle),
+                      100 * (1 + 0.001 * i) * __import__("math").sin(angle))
+    ring.CloseRings()
+    poly = ogr.Geometry(ogr.wkbPolygon)
+    poly.AddGeometry(ring)
+
+    feat.SetGeometryDirectly(poly)
+    assert mssqlspatial_lyr.SetFeature(feat) == ogr.OGRERR_NONE
+
+    fid = feat.GetFID()
+    mssqlspatial_lyr.ResetReading()
+    feat_read = mssqlspatial_lyr.GetFeature(fid)
+    assert feat_read is not None
+    ogrtest.check_feature_geometry(feat_read, poly, max_error=0.001)
 
 ###############################################################################
 # Run test_ogrsf

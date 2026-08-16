@@ -399,3 +399,80 @@ def test_gdalalg_vector_update_pipeline_intermediate_step(tmp_vsimem):
     ) as alg:
         j = alg.Output()
         assert j["layers"][0]["featureCount"] == 1
+
+
+###############################################################################
+# Test with a PostGIS dataset
+
+
+@pytest.fixture()
+def pg_update_ds():
+
+    val = gdal.GetConfigOption("OGR_PG_CONNECTION_STRING", None)
+    pg_connection_string = val if val is not None else "dbname=autotest"
+
+    try:
+        ds = ogr.Open("PG:" + pg_connection_string, update=1)
+    except RuntimeError:
+        ds = None
+
+    if ds is None:
+        if val is None:
+            pytest.skip(
+                "OGR_PG_CONNECTION_STRING not specified; Postgres is not "
+                f"available using default connection string {pg_connection_string}"
+            )
+        else:
+            pytest.skip(
+                "Postgres is not available using supplied "
+                f"OGR_PG_CONNECTION_STRING {pg_connection_string}"
+            )
+
+    ds.ExecuteSQL("DROP TABLE IF EXISTS vector_update_cursor_test")
+
+    yield ds
+
+    for lyr in ds:
+        lyr.ResetReading()  # prevent blocking of DROP TABLE below
+
+    ds.ExecuteSQL("DROP TABLE IF EXISTS vector_update_cursor_test")
+
+
+@pytest.mark.require_driver("PostgreSQL")
+def test_gdalalg_vector_update(pg_update_ds):
+
+    src_ds = gdal.GetDriverByName("MEM").CreateVector("src")
+    src_lyr = src_ds.CreateLayer("test")
+    src_lyr.CreateField(ogr.FieldDefn("key_field", ogr.OFTInteger))
+    src_lyr.CreateField(ogr.FieldDefn("value_field", ogr.OFTString))
+
+    num_features = 5
+    for i in range(num_features):
+        f = ogr.Feature(src_lyr.GetLayerDefn())
+        f["key_field"] = i
+        f["value_field"] = f"updated_{i}"
+        src_lyr.CreateFeature(f)
+
+    dst_lyr = pg_update_ds.CreateLayer(
+        "vector_update_cursor_test", geom_type=ogr.wkbNone
+    )
+    dst_lyr.CreateField(ogr.FieldDefn("key_field", ogr.OFTInteger))
+    dst_lyr.CreateField(ogr.FieldDefn("value_field", ogr.OFTString))
+
+    for i in range(num_features):
+        f = ogr.Feature(dst_lyr.GetLayerDefn())
+        f["key_field"] = i
+        f["value_field"] = f"initial_{i}"
+        dst_lyr.CreateFeature(f)
+
+    assert gdal.alg.vector.update(
+        input=src_ds,
+        output=pg_update_ds,
+        output_layer="vector_update_cursor_test",
+        key=["key_field"],
+        mode="update-only",
+    )
+
+    dst_lyr.ResetReading()
+    updated = {f["key_field"]: f["value_field"] for f in dst_lyr}
+    assert updated == {i: f"updated_{i}" for i in range(num_features)}

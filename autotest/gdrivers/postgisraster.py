@@ -44,7 +44,7 @@ def setup_and_cleanup():
     if gdal.GetConfigOption("APPVEYOR"):
         pytest.skip("Skipped on AppVeyor")
 
-    val = gdal.GetConfigOption("GDAL_PG_CONNECTION_STRING", None)
+    val = gdal.GetConfigOption("OGR_PG_CONNECTION_STRING", None)
     if val is not None:
         pg_connection_string = val
     else:
@@ -67,7 +67,7 @@ def setup_and_cleanup():
             )
         else:
             pytest.skip(
-                f'GDAL_PG_CONNECTION_STRING not specified; database is not available using default connection string "{pg_connection_string}"'
+                f'OGR_PG_CONNECTION_STRING not specified; database is not available using default connection string "{pg_connection_string}"'
             )
 
     sr = osr.SpatialReference()

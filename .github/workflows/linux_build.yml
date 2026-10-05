@@ -205,7 +205,11 @@ jobs:
       - name: Enable Docker qemu
         shell: bash -l {0}
         run: |
-          docker run --rm --privileged linuxkit/binfmt:v0.8
+          # Experiment: replace linuxkit/binfmt:v0.8 (QEMU 4.2.0)
+          docker run --rm --privileged tonistiigi/binfmt --uninstall 'qemu-*' || true
+          docker run --rm --privileged tonistiigi/binfmt --install arm,s390x
+          docker run --rm --privileged tonistiigi/binfmt --version
+          cat /proc/sys/fs/binfmt_misc/qemu-arm
 
         # Pull build environment in forks or pull requests, unless [skip cache] is included in the commit message
       - name: Pull build environment

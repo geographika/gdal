@@ -4,6 +4,13 @@ set -eu
 
 source ${GDAL_SOURCE_DIR:=..}/scripts/setdevenv.sh
 
+# Experiment: quick checks for the known armhf problems
+python3 -c "import socket; s = socket.socket(); s.bind(('', 8080)); print('bind OK')"
+python3 -c "from osgeo import gdal; print('vsicurl:', gdal.VSIFOpenL('/vsicurl/http://127.0.0.1:1/x', 'rb'))"
+pytest autotest/gcore/vsiswift.py autotest/gcore/vsiaz_real_instance_auto.py \
+       autotest/gcore/vsicurl_streaming.py
+pytest autotest/gcore/vsifile.py -o faulthandler_timeout=120 -k test_vsigzip_multi_thread
+
 autotest/cpp/gdal_unit_test --gtest_filter=-test_cpl.CPLSpawn:test_cpl.CPLGetCurrentThreadCount
 
 # Random failures

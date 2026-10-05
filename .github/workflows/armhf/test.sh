@@ -14,6 +14,9 @@ rm -f autotest/gcore/vsis3.py
 rm -f autotest/gcore/vsizip.py
 rm -f autotest/gcore/vsioss.py
 
+# SIGABRT in libcurl on real (non-localhost) network requests
+rm -f autotest/gcore/vsiswift.py
+
 pytest autotest/alg -k "not test_warp_52 and not test_warp_rpc_source_has_geotransform"
 
 GCORE_K="not transformer"

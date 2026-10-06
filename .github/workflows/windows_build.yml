@@ -393,7 +393,10 @@ jobs:
       shell: bash -l {0}
       run: |
         # Exclude doc spellcheck and example tests as they crash
-        ctest --test-dir $GITHUB_WORKSPACE/build -C Release -V -j 3 -E doc
+        # ctest --test-dir $GITHUB_WORKSPACE/build -C Release -V -j 3 -E doc
+        ctest --test-dir $GITHUB_WORKSPACE/build -C Release -V -j 3 -E "doc|autotest_gcore"
+        # Run gcore separately so a crash isn't interleaved with other test output
+        ctest --test-dir $GITHUB_WORKSPACE/build -C Release -V -R autotest_gcore
       env:
         SKIP_OGR_GMLAS_HUGE_PROCESSING_TIME: YES
         SKIP_OGR_GMLAS_HTTP_RELATED: YES

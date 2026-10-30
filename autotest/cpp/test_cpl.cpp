@@ -52,6 +52,8 @@
 #include <limits>
 #include <fstream>
 #include <string>
+#include <thread>
+#include <vector>
 
 #if !defined(_WIN32)
 #include <unistd.h>
@@ -5975,6 +5977,41 @@ TEST_F(test_cpl, CPLGetCurrentThreadCount)
 #else
     EXPECT_EQ(CPLGetCurrentThreadCount(), 0);
 #endif
+}
+
+TEST_F(test_cpl, CPLCreateJoinableThread_thread_finishing_first)
+{
+    // A joinable thread may finish before CPLCreateJoinableThread() returns. On
+    // Windows the thread then freed its CPLStdCallThreadInfo as if it were
+    // detached, and CPLJoinThread() wrote to and freed it a second time: heap
+    // corruption.
+
+    // More creators than CPUs, so that creators get preempted right after
+    // creating their thread, and the thread finishes first.
+    const int nCreators = 2 * std::max(1, CPLGetNumCPUs());
+    std::atomic<int> nFailures{0};
+    std::vector<std::thread> aoCreators;
+    for (int i = 0; i < nCreators; ++i)
+    {
+        aoCreators.emplace_back(
+            [&nFailures]()
+            {
+                for (int j = 0; j < 1000; ++j)
+                {
+                    CPLJoinableThread *hThread =
+                        CPLCreateJoinableThread([](void *) {}, nullptr);
+                    if (hThread == nullptr)
+                    {
+                        ++nFailures;
+                        return;
+                    }
+                    CPLJoinThread(hThread);
+                }
+            });
+    }
+    for (auto &oThread : aoCreators)
+        oThread.join();
+    EXPECT_EQ(nFailures.load(), 0);
 }
 
 TEST_F(test_cpl, CPLHasPathTraversal)

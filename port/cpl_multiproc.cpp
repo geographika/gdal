@@ -1159,8 +1159,8 @@ static DWORD WINAPI CPLStdCallThreadJacket(void *pData)
     psInfo->pfnMain(psInfo->pAppData);
 
     // Only for detached threads
-    if (!psInfo->bJoinable)
-        CPLFree(psInfo);
+    //if (!psInfo->bJoinable)
+    //    CPLFree(psInfo);
 
     CPLCleanupTLS();
 
